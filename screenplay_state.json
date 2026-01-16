@@ -40,5 +40,15 @@
         "target_scope": ""
     },
     "version": 1,
-    "state": "DRAFTING"
+    "state": "DRAFTING",
+    "metadata": {
+        "critique_stats": {
+            "current_attempt_count": 0,
+            "current_stage": "",
+            "history": {
+                "logline": 0,
+                "beat_sheet": 0
+            }
+        }
+    }
 }

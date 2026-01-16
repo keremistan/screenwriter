@@ -179,6 +179,36 @@
                 "REVISION_REQUIRED",
                 "COMPLETED"
             ]
+        },
+        "metadata": {
+            "type": "object",
+            "properties": {
+                "critique_stats": {
+                    "type": "object",
+                    "properties": {
+                        "current_attempt_count": {
+                            "type": "integer"
+                        },
+                        "current_stage": {
+                            "type": "string"
+                        },
+                        "history": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "required": [
+                        "current_attempt_count",
+                        "current_stage",
+                        "history"
+                    ]
+                }
+            },
+            "required": [
+                "critique_stats"
+            ]
         }
     },
     "required": [
@@ -194,6 +224,7 @@
         "locations",
         "control_signal",
         "version",
-        "state"
+        "state",
+        "metadata"
     ]
 }
