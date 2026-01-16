@@ -1,0 +1,199 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Screenplay State",
+    "description": "Schema for the screenplay state object used by the multi-agent system.",
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "genre": {
+            "type": "string"
+        },
+        "theme_or_message": {
+            "type": "string"
+        },
+        "logline": {
+            "type": "string"
+        },
+        "plot_points": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "setting": {
+            "type": "string"
+        },
+        "beat_sheet": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "treatment": {
+            "type": "string"
+        },
+        "scenes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "characters": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "time",
+                    "location",
+                    "characters",
+                    "content"
+                ]
+            }
+        },
+        "characters": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "the_dramatic_need": {
+                        "type": "string"
+                    },
+                    "motivations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "strengths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "weaknesses": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "secrets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "the_dramatic_need",
+                    "motivations",
+                    "strengths",
+                    "weaknesses",
+                    "secrets"
+                ]
+            }
+        },
+        "locations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            }
+        },
+        "control_signal": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "REJECTED",
+                        "APPROVED",
+                        "PENDING"
+                    ]
+                },
+                "feedback": {
+                    "type": "string"
+                },
+                "issue_severity": {
+                    "type": "string",
+                    "enum": [
+                        "BLOCKER",
+                        "MINOR",
+                        "NONE"
+                    ]
+                },
+                "target_scope": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "status",
+                "feedback",
+                "issue_severity",
+                "target_scope"
+            ]
+        },
+        "version": {
+            "type": "integer"
+        },
+        "state": {
+            "type": "string",
+            "enum": [
+                "DRAFTING",
+                "REVIEW_PENDING",
+                "REVISION_REQUIRED",
+                "COMPLETED"
+            ]
+        }
+    },
+    "required": [
+        "genre",
+        "theme_or_message",
+        "logline",
+        "plot_points",
+        "setting",
+        "beat_sheet",
+        "treatment",
+        "scenes",
+        "characters",
+        "locations",
+        "control_signal",
+        "version",
+        "state"
+    ]
+}

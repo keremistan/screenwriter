@@ -1,0 +1,44 @@
+{
+    "$schema": "./screenplay_schema.json",
+    "genre": "",
+    "theme_or_message": "",
+    "logline": "",
+    "plot_points": [],
+    "setting": "",
+    "beat_sheet": [],
+    "treatment": "",
+    "scenes": [
+        {
+            "id": "",
+            "time": "",
+            "location": "",
+            "characters": [],
+            "content": ""
+        }
+    ],
+    "characters": [
+        {
+            "id": "",
+            "name": "",
+            "the_dramatic_need": "",
+            "motivations": [],
+            "strengths": [],
+            "weaknesses": [],
+            "secrets": []
+        }
+    ],
+    "locations": [
+        {
+            "id": "",
+            "name": ""
+        }
+    ],
+    "control_signal": {
+        "status": "REJECTED",
+        "feedback": "",
+        "issue_severity": "BLOCKER",
+        "target_scope": ""
+    },
+    "version": 1,
+    "state": "DRAFTING"
+}
