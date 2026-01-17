@@ -19,7 +19,19 @@
         "plot_points": {
             "type": "array",
             "items": {
-                "type": "string"
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "content"
+                ]
             }
         },
         "setting": {
@@ -28,7 +40,19 @@
         "beat_sheet": {
             "type": "array",
             "items": {
-                "type": "string"
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "content"
+                ]
             }
         },
         "treatment": {
@@ -45,25 +69,31 @@
                     "time": {
                         "type": "string"
                     },
-                    "location": {
+                    "content": {
                         "type": "string"
                     },
-                    "characters": {
+                    "content_id": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "dependencies": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
                     },
-                    "content": {
-                        "type": "string"
+                    "inventory": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "required": [
                     "id",
-                    "time",
-                    "location",
-                    "characters",
-                    "content"
+                    "time"
                 ]
             }
         },
@@ -204,11 +234,34 @@
                         "current_stage",
                         "history"
                     ]
+                },
+                "context_stack": {
+                    "type": "object",
+                    "properties": {
+                        "open_loops": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "current_location_id": {
+                            "type": "string"
+                        },
+                        "narrative_arc_summary": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "required": [
                 "critique_stats"
             ]
+        },
+        "stale_content_blocks": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         }
     },
     "required": [
