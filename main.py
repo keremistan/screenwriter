@@ -28,6 +28,21 @@ def writer_agent():
 
 def transition_rewriter_agent():
     '''rewrites if any dependencies of a content block became STALE'''
+
+    # constrained rewriting, anchored in beat sheet - when scene X should be rewritten because scene X-1 changed, then scene X needs to adjusted while maintaining consistency with scene X-1 and beat sheet. 
+    #  If that is not possible, emit BLOCKER signal
+    #    then the next step is to update the beat sheet
+
+    '''
+    sample blocker control signal
+    {
+        status: REWRITING_FAILED,
+        issue_severity: BLOCKER,
+        feedback: ,
+        target_scope: 
+    }
+    '''
+
     pass
 
 def summarizer_agent():
