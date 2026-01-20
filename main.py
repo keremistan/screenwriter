@@ -1,5 +1,9 @@
-from typing_extensions import Literal, TypedDict
+from typing import Optional
+from langgraph.types import Command
+from typing_extensions import Literal, TypedDict, get_args
 from langgraph.graph import START, END, StateGraph
+from langgraph.checkpoint.memory import InMemorySaver
+import random
 
 
 def main():
@@ -42,6 +46,22 @@ def summarizer_agent():
     pass
 
 
+STATUS = Literal[
+    "TO_BE_WRITTEN",  # when a new phase starts
+    "FEEDBACK_REQUIRED",  # writing_agent has finished
+    "REVISION_REQUIRED",  # critique_agent wants improvement
+    "APPROVED",  # critique_agent approved
+]
+
+PHASE = Literal[
+    "GENRE",  # starting phase
+    "TITLE",
+    "LOGLINE",
+    "SETTING",
+    "BEAT_SHEET",
+]
+
+
 class ScreenplayState(TypedDict):
     # content
     genre: str
@@ -51,30 +71,65 @@ class ScreenplayState(TypedDict):
     beat_sheet: list[str]
 
     # writing metadata
-    critique_feedback: str
-    state: Literal["NOT_STARTED_YET", "IN_DRAFT", "FINISHED"]
-    status: Literal[
-        "FEEDBACK_REQUIRED",  # writing_agent has finished
-        "REVISION_REQUIRED",  # critique_agent wants improvement
-        "APPROVED",  # critique_agent approved
-    ]
-    phase: Literal[
-        "GENRE",  # starting phase
-        "TITLE",
-        "LOGLINE",
-        "SETTING",
-        "BEAT_SHEET",
-    ]
+    critique_feedback: Optional[str]
+    # state: Literal["NOT_STARTED_YET", "IN_DRAFT", "FINISHED"]
+    status: STATUS
+    phase: PHASE
 
 
-def orchestrator_agent():
+def _get_next_phase(current_phase) -> Optional[PHASE]:
+    phases = get_args(PHASE)
+    print("phases: {}".format(phases))
+    index_of_current_phase = phases.index(current_phase)
+    print("index_of_current_phase: {}".format(index_of_current_phase))
+    the_next_index = (
+        index_of_current_phase + 1 if index_of_current_phase + 1 < len(phases) else None
+    )
+    print("the_next_index: {}".format(the_next_index))
+
+    if the_next_index is None:
+        return
+    else:
+        return phases[the_next_index]
+
+
+def orchestrator_agent(state: ScreenplayState):
     """when a phase is finished, human approval is needed to commence to the next phase"""
     # receive new draft
     #  validate json format
     #  lint-check static information; names, etc.
     #  pass to validator for narrative consistency check
     #  pass to critique agent for narrative quality check
-    pass
+
+    if state["status"] == "TO_BE_WRITTEN":
+        print("orchestrator: forwarding to writer")
+        return Command(goto="writer_agent")
+
+    elif state["status"] == "FEEDBACK_REQUIRED":
+        print("orchestrator: forwarding to critique")
+        return Command(goto="critique_agent")
+
+    elif state["status"] == "REVISION_REQUIRED":
+        print("orchestrator: forwarding to writer")
+        return Command(goto="writer_agent")
+
+    elif state["status"] == "APPROVED":
+        current_phase = state["phase"]
+        print("current phase: {}".format(current_phase))
+        next_phase = _get_next_phase(current_phase)
+        print("the next phase: {}".format(next_phase))
+
+        if next_phase is None:
+            print("orchestrator: forwarding to END")
+            return Command(goto=END)
+        else:
+            print("orchestrator: moving to the next phase")
+            return Command(
+                goto="writer_agent",
+                update={"phase": next_phase, "status": "TO_BE_WRITTEN"},
+            )
+
+    return Command(goto=END)
 
 
 def critique_agent(state: ScreenplayState):
@@ -85,16 +140,26 @@ def critique_agent(state: ScreenplayState):
     1. there can be a list phases and every time, this agent signals 'APPROVED' orchestrator can move to the next phase.
     """
 
-    pass
+    critique_simulation = random.randint(0, 1)
+    if critique_simulation == 0:
+        print("critique: requiring revision")
+        return Command(
+            goto="orchestrator_agent", update={"status": "REVISION_REQUIRED"}
+        )
+    else:
+        print("critique: approving")
+        return Command(goto="orchestrator_agent", update={"status": "APPROVED"})
 
 
 def writer_agent(state: ScreenplayState):
     # submit new draft
-    pass
+
+    print("writer: writing")
+    return Command(goto="orchestrator_agent", update={"status": "FEEDBACK_REQUIRED"})
 
 
 if __name__ == "__main__":
-    graph = StateGraph(Screenplay)
+    graph = StateGraph(ScreenplayState)
 
     graph.add_node("orchestrator_agent", orchestrator_agent)
     graph.add_node("critique_agent", critique_agent)
@@ -102,3 +167,15 @@ if __name__ == "__main__":
 
     graph.add_edge(START, "orchestrator_agent")
     graph.add_edge("orchestrator_agent", END)
+
+    starting_screenplay_state = ScreenplayState(
+        genre="sitcom",
+        title="Finding the way",
+        status="TO_BE_WRITTEN",
+        phase="LOGLINE"
+    )
+
+    # saver = InMemorySaver()
+    # compiled_graph = graph.compile(checkpointer=saver)
+    compiled_graph = graph.compile()
+    compiled_graph.invoke(starting_screenplay_state)
