@@ -152,40 +152,28 @@ def critique_agent(state: ScreenplayState):
 
 
 def writer_beat_sheet_prompt(state: ScreenplayState) -> str:
+    # Use f-strings for readability
+    context = (
+        f"Genre: {state['genre']}\n"
+        f"Message/Theme: {state['message']}\n"
+        f"Logline: {state['logline']}"
+    )
 
-    genre = state["genre"]
-    message = state["message"]
-    logline = state["logline"]
+    if state["status"] == STATUS.REVISION_REQUIRED:
+        return f"""
+            {context}
+                    
+            Your previous beat sheet: {state['beat_sheet']}
+            Critique to address: {state['critique_feedback']}
 
-    is_to_revised = state["status"] == STATUS.REVISION_REQUIRED
+            Task: Improve the beat sheet based on the critique.
+            """.strip()
 
-    if is_to_revised:
-        critique_feedback = state["critique_feedback"]
-        beat_sheet = state["beat_sheet"]
+    return f"""
+            {context}
 
-        prompt = """
-        Given the 
-        genre: {}, 
-        message: {} 
-        logline: {}
-        improve this beat sheet: {}
-        based on the critique: {}
-        """.format(
-            genre, message, logline, beat_sheet, critique_feedback
-        )
-
-    else:
-        prompt = """
-        Given the 
-        genre: {}, 
-        message: {} 
-        logline: {}
-        write beat sheet
-        """.format(
-            genre, message, logline
-        )
-
-    return prompt
+            Task: Write a beat sheet based on the provided genre, message, and logline.
+            """.strip()
 
 
 writer_prompts = {PHASE.BEAT_SHEET: writer_beat_sheet_prompt}
