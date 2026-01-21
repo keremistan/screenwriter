@@ -5,6 +5,7 @@ from typing_extensions import Literal, TypedDict, get_args
 from langgraph.graph import START, END, StateGraph
 from langgraph.checkpoint.memory import InMemorySaver
 import random
+from enum import Enum
 
 
 def main():
@@ -54,15 +55,23 @@ STATUS = Literal[
     "APPROVED",  # critique_agent approved
 ]
 
-PHASE = Literal[
-    "LOGLINE",
-    "BEAT_SHEET",
-]
 
-PHASE_ORDER: list[PHASE] = [
-    "LOGLINE",  # starting phase
-    "BEAT_SHEET",
-]
+class PHASE(Enum):
+    LOGLINE = 1
+    BEAT_SHEET = 2
+
+    @classmethod
+    def get_highest_index(cls) -> int:
+        return max([p.value for p in cls])
+
+    @classmethod
+    def get_next_phase(cls, current_phase_index: int) -> Optional["PHASE"]:
+        highest_index = cls.get_highest_index()
+        the_next_index = current_phase_index + 1
+        if the_next_index > highest_index:
+            return
+        else:
+            return cls(the_next_index)
 
 
 class ScreenplayState(TypedDict):
@@ -80,22 +89,6 @@ class ScreenplayState(TypedDict):
     # state: Literal["NOT_STARTED_YET", "IN_DRAFT", "FINISHED"]
     status: STATUS
     phase: PHASE
-
-
-def _get_next_phase(current_phase) -> Optional[PHASE]:
-    index_of_current_phase = PHASE_ORDER.index(current_phase)
-    print("index_of_current_phase: {}".format(index_of_current_phase))
-    the_next_index = (
-        index_of_current_phase + 1
-        if index_of_current_phase + 1 < len(PHASE_ORDER)
-        else None
-    )
-    print("the_next_index: {}".format(the_next_index))
-
-    if the_next_index is None:
-        return
-    else:
-        return PHASE_ORDER[the_next_index]
 
 
 def orchestrator_agent(state: ScreenplayState):
@@ -121,7 +114,7 @@ def orchestrator_agent(state: ScreenplayState):
     elif state["status"] == "APPROVED":
         current_phase = state["phase"]
         print("current phase: {}".format(current_phase))
-        next_phase = _get_next_phase(current_phase)
+        next_phase = PHASE.get_next_phase(current_phase.value)
         print("the next phase: {}".format(next_phase))
 
         if next_phase is None:
@@ -177,7 +170,7 @@ if __name__ == "__main__":
     graph.add_edge("orchestrator_agent", END)
 
     starting_screenplay_state = ScreenplayState(
-        genre="sitcom", status="TO_BE_WRITTEN", phase="LOGLINE"
+        genre="sitcom", status="TO_BE_WRITTEN", phase=PHASE.LOGLINE
     )
 
     # saver = InMemorySaver()
