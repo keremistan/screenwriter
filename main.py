@@ -111,9 +111,9 @@ def orchestrator_agent(state: ScreenplayState):
 
     elif state["status"] == "APPROVED":
         current_phase = state["phase"]
-        print("current phase: {}".format(current_phase))
-        next_phase = PHASE.get_next_phase(current_phase.value)
-        print("the next phase: {}".format(next_phase))
+        next_phase = PHASE.get_next_phase(
+            current_phase.value
+        )  # TODO: when saving this phase info to DB, the enum needs to be stripped to a string or int. .value or .name.
 
         if next_phase is None:
             print("orchestrator: forwarding to END")
@@ -181,16 +181,18 @@ writer_prompts = {PHASE.BEAT_SHEET: writer_beat_sheet_prompt}
 
 def writer_agent(state: ScreenplayState):
     # submit new draft
-    prompt_func = writer_prompts[state["phase"]]
+    current_phase: PHASE = state["phase"]
+    prompt_func = writer_prompts[current_phase]
     prompt = prompt_func(state)
     print("writer: writing based on this prompt: {}".format(prompt))
 
-    # writer = dspy.ChainOfThought("")
+    writer = dspy.ChainOfThought("prompt: str -> beat_sheet: list[str]")
 
     return Command(
         goto="orchestrator_agent",
         update={
             "status": "FEEDBACK_REQUIRED",
+            # TODO: make the keys dynamic regarding which field to update.
             "beat_sheet": ["They hang out in a bar", "They are eating cookies"],
         },
     )
@@ -199,14 +201,14 @@ def writer_agent(state: ScreenplayState):
 if __name__ == "__main__":
     graph = StateGraph(ScreenplayState)
 
-    graph.add_node("orchestrator_agent", orchestrator_agent)
-    graph.add_node("critique_agent", critique_agent)
-    graph.add_node("writer_agent", writer_agent)
+    graph.add_node("orchestrator_agent", orchestrator_agent)  # pyrefly: ignore
+    graph.add_node("critique_agent", critique_agent)  # pyrefly: ignore
+    graph.add_node("writer_agent", writer_agent)  # pyrefly: ignore
 
     graph.add_edge(START, "orchestrator_agent")
     graph.add_edge("orchestrator_agent", END)
 
-    starting_screenplay_state = ScreenplayState(
+    starting_screenplay_state = ScreenplayState(  # pyrefly: ignore
         genre="sitcom",
         message="when is adulthood starting then?",
         logline="Two guys who are trying their best to cope with adulthood, but they were not expecting it",

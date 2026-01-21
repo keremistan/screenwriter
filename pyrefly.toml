@@ -1,0 +1,17 @@
+[checker]
+# Enable strict mode to catch missing annotations and type mismatches
+strict = true
+# Ensure Pyrefly checks your specific Python version features
+python_version = "3.12"
+# Automatically infer return types if not explicitly stated
+infer_return_types = true
+
+[analysis]
+# Treat 'Any' as an error to force precise typing
+disallow_any_expr = false
+disallow_untyped_defs = true
+
+[paths]
+# Explicitly include your source directory
+include = ["src", "app"]
+exclude = ["tests", "migrations", ".venv"]
