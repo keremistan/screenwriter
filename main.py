@@ -128,6 +128,14 @@ def orchestrator_agent(state: ScreenplayState):
     return Command(goto=END)
 
 
+class CritiqueSignature(dspy.Signature):
+    prompt: str = dspy.InputField()
+    critique_feedback: str = dspy.OutputField()
+    status: STATUS = dspy.OutputField(
+        desc="this can be either APPROVED or REVISION_REQUIRED"
+    )
+
+
 def critique_agent(state: ScreenplayState):
     """it critiques the narrative quality"""
 
@@ -135,6 +143,8 @@ def critique_agent(state: ScreenplayState):
     transitioning between phases:
     1. there can be a list phases and every time, this agent signals 'APPROVED' orchestrator can move to the next phase.
     """
+
+    critique = dspy.ChainOfThought(CritiqueSignature)
 
     critique_simulation = random.randint(0, 1)
     if critique_simulation == 0:
@@ -178,6 +188,13 @@ def writer_beat_sheet_prompt(state: ScreenplayState) -> str:
 
 writer_prompts = {PHASE.BEAT_SHEET: writer_beat_sheet_prompt}
 
+# TODO: add a signature registry for when the writer needs different signatures for its inputs and outputs
+
+
+class BeatSheetSignature(dspy.Signature):
+    prompt: str = dspy.InputField()
+    beat_sheet: list[str] = dspy.OutputField()
+
 
 def writer_agent(state: ScreenplayState):
     # submit new draft
@@ -186,7 +203,7 @@ def writer_agent(state: ScreenplayState):
     prompt = prompt_func(state)
     print("writer: writing based on this prompt: {}".format(prompt))
 
-    writer = dspy.ChainOfThought("prompt: str -> beat_sheet: list[str]")
+    writer = dspy.ChainOfThought(BeatSheetSignature)
 
     return Command(
         goto="orchestrator_agent",
